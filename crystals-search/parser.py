@@ -123,7 +123,7 @@ if __name__ == '__main__':
         print(f"{shelf}/{book}: {n1:.6f} ({p1}), {n2:.6f} ({p2})")
     
     # Сохранение в CSV
-    output_filename = f"crystals_{wavelength_um*1000:.0f}nm.csv"
+    output_filename = f"crystals-search/crystals_{wavelength_um*1000:.0f}nm.csv"
     with open(output_filename, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(['shelf', 'book', 'n_o', 'n_e', 'page_o', 'page_e', 'wavelength_um'])
