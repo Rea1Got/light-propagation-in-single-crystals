@@ -5,8 +5,8 @@
 #SBATCH -t 800
 #SBATCH -p small
 
-#SBATCH -o lammps_%j.out
-#SBATCH -e lammps_%j.err
+#SBATCH -o logs/lammps_%j.out
+#SBATCH -e logs/lammps_%j.err
 
 # Если потребуется GPU (пока закомментировано):
 ###SBATCH --gres=gpu:1
@@ -26,5 +26,5 @@ conda activate lammps-kim
 
 # Запуск LAMMPS
 echo "Старт расчёта: $(date)"
-lmp -in in.GaN -log log.GaN_run
+lmp -in in.GaN -log logs/log.GaN_run
 echo "Завершено: $(date)"
