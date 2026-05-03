@@ -1,0 +1,40 @@
+# LAMMPS input template — substituted by gen_inputs.py
+# Material: SiO2  | KIM: Tersoff_LAMMPS_MunetohMotookaMoriguchi_2007_SiO__MO_501246546792_000
+
+units           metal
+atom_style      charge
+boundary        p p p
+
+kim init Tersoff_LAMMPS_MunetohMotookaMoriguchi_2007_SiO__MO_501246546792_000 metal
+
+read_data       lammps_init/SiO2.lmp
+
+kim interactions Si O
+
+comm_modify     cutoff 4.0
+
+# === Геометрическая минимизация ===
+min_style       cg
+minimize        1e-13 1e-13 20000 20000
+
+# === Мягкий разогрев (NVE + Langevin) ===
+timestep        0.0005
+velocity        all create 10 4928459 rot yes
+velocity        all zero linear
+fix             fxnve all nve
+fix             fxlang all langevin 10 10 0.5 48279
+run             20000
+
+# === Прогрев 10 -> 300 K (NPT) ===
+unfix           fxnve
+unfix           fxlang
+fix             fxnpt all npt temp 10 300 0.1 iso 0.0 0.0 1.0
+run             20000
+
+# === Основной съём (NPT, 300 K) ===
+unfix           fxnpt
+fix             fxnpt_main all npt temp 300 300 0.1 iso 0.0 0.0 1.0
+timestep        0.001
+dump            mydmp all custom 500 dumps/dump.SiO2 id type x y z
+dump_modify     mydmp sort id
+run             100000

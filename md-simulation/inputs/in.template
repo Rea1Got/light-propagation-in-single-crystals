@@ -1,35 +1,40 @@
-# инициализация
+# LAMMPS input template — substituted by gen_inputs.py
+# {HEADER_LINE}
+
 units           metal
-atom_style      charge 
+atom_style      charge
 boundary        p p p
-pair_style      kim SW_BereSerra_2006_GaN__MO_861114678890_000
-comm_modify 	cutoff 4.0
-# Структура (замените путь на актуальный)
-read_data       lammps_init/GaN.lmp
-pair_coeff	* * Ga N
-# === Минимизация ===
+
+{INIT_BLOCK}
+
+read_data       lammps_init/{LMP_FILE}
+
+{INTERACTIONS_BLOCK}
+
+comm_modify     cutoff 4.0
+
+# === Геометрическая минимизация ===
 min_style       cg
 minimize        1e-13 1e-13 20000 20000
 
-# === Мягкий разогрев ===
+# === Мягкий разогрев (NVE + Langevin) ===
 timestep        0.0005
 velocity        all create 10 4928459 rot yes
-velocity 	all zero linear
+velocity        all zero linear
 fix             fxnve all nve
 fix             fxlang all langevin 10 10 0.5 48279
 run             20000
 
-# === Нагрев до 300 K с NPT ===
+# === Прогрев 10 -> 300 K (NPT) ===
 unfix           fxnve
 unfix           fxlang
 fix             fxnpt all npt temp 10 300 0.1 iso 0.0 0.0 1.0
 run             20000
 
-# === Основной съём ===
-unfix           fxnpt   
+# === Основной съём (NPT, 300 K) ===
+unfix           fxnpt
 fix             fxnpt_main all npt temp 300 300 0.1 iso 0.0 0.0 1.0
 timestep        0.001
-dump            mydmp all custom 500 dumps/dump.GaN id type x y z
+dump            mydmp all custom 500 dumps/dump.{MATERIAL} id type x y z
 dump_modify     mydmp sort id
 run             100000
-
